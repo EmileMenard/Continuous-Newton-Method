@@ -1,0 +1,213 @@
+import numpy
+import sympy
+import matplotlib.pyplot as plt
+from matplotlib import cm
+import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
+from sympy import *
+
+
+init_printing(use_latex=True)
+
+from sympy import symbols
+
+x, y = symbols('x y')
+
+tolerance = 0.00000000001
+
+
+def plot():
+    newstr = function.replace('x', 'X[i,j]')
+    plotfunction = newstr.replace('y', 'Y[i,j]')
+    fig = plt.figure() # Defines the figure
+    ax = Axes3D(fig) # Gets and sets the axis type of the figure
+    # We want a graph of a function z = f(x,y) with x and y between these boundaries
+    xmin = int(input("Minimum plot x value: "))
+    xmax = int(input("Maximum plot x value: "))
+    ymin = int(input("Minimum plot y value: "))
+    ymax = int(input("Maximum plot y value: "))
+    # We use a grid of nx x ny points
+    nx = 40
+    ny = 40
+    # Compute the spacing of the grid
+    dx = (xmax-xmin)/(nx-1)
+    dy = (ymax-ymin)/(ny-1)
+    # Declare numpy arrays for storage of the coordinates of the grid points
+    X = np.zeros((nx,ny))
+    Y = np.zeros((nx,ny))
+    # Declare a numpy array for storage of the function values
+    Z = np.zeros((nx,ny))
+    # Compute the functin values; notice that "range" yields a sequence of integers
+    # starting with the first one, up to, but not including the last one
+    for i in range(0,nx):
+        for j in range(0,ny):
+            X[i,j] = xmin + dx*i
+            Y[i,j] = ymin + dy*j
+            # Notice that sin and exp are part of the imported numpy package
+            Z[i,j] = eval(plotfunction)
+            #Z[i,j] = 2*X[i,j]*Y[i,j]/(X[i,j]*X[i,j]+Y[i,j]*Y[i,j])
+    # For scaling purposes we compute the minimal and maximal values of the function values.
+    # Z is a 2-dimensional array, and the "min" and "max" operator operate along one dimension.
+    # Therefore they have to be called twice
+    zmin = np.min(np.min(Z,0))
+    zmax = np.max(np.max(Z,0))
+    # This plots the surface, with lines drawn at every "rstride" (rowstride) and "cstride" (column stride)
+    # line of the grid.
+    # The parameter alpha represents the opacity of the surface plot
+    ax.plot_surface(X, Y, Z, rstride=1, cstride=1, alpha=0.2)
+    # We also draw contour lines. The first one plots lines of constant "Z"-value, between zmin and zmax,
+    # in total 50 of them, with Z-values equally distributed between zmin and zmax (via the "levels" argument).
+    # They are projected in a plane perpendicular to the z-axis (via zdir='z') intersecting the z-axis at an
+    # offset of zmin
+    # The others are similar.
+    ax.contour(X, Y, Z, zdir='z', offset=zmin, cmap=cm.coolwarm, levels=np.linspace(zmin,zmax,num=20))
+    ax.contour(X, Y, Z, zdir='x', offset=xmin, cmap=cm.coolwarm, levels=np.linspace(xmin,xmax,num=20))
+    ax.contour(X, Y, Z, zdir='y', offset=ymax, cmap=cm.coolwarm, levels=np.linspace(ymin,ymax,num=20))
+    # Finally some axis-dressing:
+    ax.set_xlabel('X')
+    ax.set_xlim(xmin, xmax)
+    ax.set_ylabel('Y')
+    ax.set_ylim(ymin, ymax)
+    ax.set_zlabel('Z')
+    ax.set_zlim(zmin, zmax)
+    # And show the graph
+    plt.show()
+    return
+
+
+def plot2():
+    newstr = function.replace('x', 'X[i,j]')
+    plotfunction = newstr.replace('y', 'Y[i,j]')
+    fig = plt.figure() # Defines the figure
+    ax = Axes3D(fig) # Gets and sets the axis type of the figure
+    # We want a graph of a function z = f(x,y) with x and y between these boundaries
+    xmin = float(x0)-10
+    xmax = float(x0)+10
+    ymin = float(y0)-10
+    ymax = float(y0)+10
+    # We use a grid of nx x ny points
+    nx = 40
+    ny = 40
+    # Compute the spacing of the grid
+    dx = (xmax-xmin)/(nx-1)
+    dy = (ymax-ymin)/(ny-1)
+    # Declare numpy arrays for storage of the coordinates of the grid points
+    X = np.zeros((nx,ny))
+    Y = np.zeros((nx,ny))
+    # Declare a numpy array for storage of the function values
+    Z = np.zeros((nx,ny))
+    # Compute the functin values; notice that "range" yields a sequence of integers
+    # starting with the first one, up to, but not including the last one
+    for i in range(0,nx):
+        for j in range(0,ny):
+            X[i,j] = xmin + dx*i
+            Y[i,j] = ymin + dy*j
+            # Notice that sin and exp are part of the imported numpy package
+            Z[i,j] = eval(plotfunction)
+            #Z[i,j] = 2*X[i,j]*Y[i,j]/(X[i,j]*X[i,j]+Y[i,j]*Y[i,j])
+    # For scaling purposes we compute the minimal and maximal values of the function values.
+    # Z is a 2-dimensional array, and the "min" and "max" operator operate along one dimension.
+    # Therefore they have to be called twice
+    zmin = np.min(np.min(Z,0))
+    zmax = np.max(np.max(Z,0))
+    # This plots the surface, with lines drawn at every "rstride" (rowstride) and "cstride" (column stride)
+    # line of the grid.
+    # The parameter alpha represents the opacity of the surface plot
+    ax.plot_surface(X, Y, Z, rstride=1, cstride=1, alpha=0.2)
+    # We also draw contour lines. The first one plots lines of constant "Z"-value, between zmin and zmax,
+    # in total 50 of them, with Z-values equally distributed between zmin and zmax (via the "levels" argument).
+    # They are projected in a plane perpendicular to the z-axis (via zdir='z') intersecting the z-axis at an
+    # offset of zmin
+    # The others are similar.
+    ax.contour(X, Y, Z, zdir='z', offset=zmin, cmap=cm.coolwarm, levels=np.linspace(zmin,zmax,num=20))
+    ax.contour(X, Y, Z, zdir='x', offset=xmin, cmap=cm.coolwarm, levels=np.linspace(xmin,xmax,num=20))
+    ax.contour(X, Y, Z, zdir='y', offset=ymax, cmap=cm.coolwarm, levels=np.linspace(ymin,ymax,num=20))
+    # Finally some axis-dressing:
+    ax.set_xlabel('X')
+    ax.set_xlim(xmin, xmax)
+    ax.set_ylabel('Y')
+    ax.set_ylim(ymin, ymax)
+    ax.set_zlabel('Z')
+    ax.set_zlim(zmin, zmax)
+    # And show the graph
+    plt.show()
+    return
+
+
+def newton():
+    global function
+    global x0
+    global y0
+    function = input("Insert function here:\n" )
+    f = simplify(function)
+    print("Your input will be calculated as: %s" % f)
+    plot()
+    x0 = simplify(input("Approximation of X: "))
+    y0 = simplify(input("Approximation of Y: "))
+    numberloop = 1
+
+
+    while True:
+        # first order derivatives
+        dfx = diff(f, x)
+        dfy = diff(f, y)
+        # second order derivatives
+        dfxx = diff(dfx, x)
+        dfyy = diff(dfy, y)
+        dfxy = diff(dfx, y)
+
+        #numerically evaluates the derivative functions
+        k = lambdify(x, dfx)
+        dfxn = k(x0)
+        k = lambdify(y, dfxn)
+        dfxn = k(y0)
+
+        k = lambdify(x, dfxx)
+        dfxxn = k(x0)
+        k = lambdify(y, dfxxn)
+        dfxxn = k(y0)
+
+        k = lambdify(x, dfy)
+        dfyn = k(x0)
+        k = lambdify(y, dfyn)
+        dfyn = k(y0)
+
+        k = lambdify(x, dfyy)
+        dfyyn = k(x0)
+        k = lambdify(y, dfyyn)
+        dfyyn = k(y0)
+
+        k = lambdify(x, dfxy)
+        dfxyn = k(x0)
+        k = lambdify(y, dfxyn)
+        dfxyn = k(y0)
+
+        # print(dfxn, dfyn, dfxxn, dfyyn, dfxyn)
+
+        # G = Matrix([[dfx], [dfy]])
+
+        # H = Matrix([[dfxx, dfxy], [dfxy, dfyy]])
+
+        det = dfxx*dfyy - dfxy*dfxy
+        adj = Matrix([[dfyy, -dfxy], [-dfxy, dfxx]])
+        # invH = (1/det)*adj
+
+        # only for single variable functions
+        x1 = x0 - ((dfxn)/(dfxxn))
+        y1 = y0 - ((dfyn)/(dfyyn))
+
+        if abs(x1-x0) < tolerance and abs(y1-y0) < tolerance:
+            break
+
+        x0 = x1
+        y0 = y1
+        print((x1), (y1))
+        numberloop += 1
+
+    print(x0, y0)
+    print("number of iterations:\n", numberloop)
+    plot2()
+
+
+newton()
+
