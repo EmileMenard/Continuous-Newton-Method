@@ -48,6 +48,10 @@ def plot(): #plot for before the algorithm works, to see where you want your ini
     xmax = int(input("maximum plot x value"))
     ymin = int(input("minumum plot y value"))
     ymax = int(input("maximum plot y value"))
+    if xmin == xmax or ymin == ymax:
+        print('\nMaximum plot value must be greater than the minimum plot value.'
+              '\nPlease try again, or continue without plotting.\n')
+        exit
     # We use a grid of nx x ny points
     nx = 40
     ny = 40
@@ -106,7 +110,10 @@ def newton():
     global Fu
     global sign
     Fu = input("Enter Function: \n")  # getting a functions as input
-    # plot()  # plotting the function
+    try:
+        plot()  # plotting the function
+    except ValueError:
+        exit
     F = simplify(Fu)  # Make the function an expression python can read
     print("Function will be calculated as:\n%s" % F)  # give back this information
     x0 = simplify(input("Approximation of X: "))  # asks for an intial guess or starting point of x
