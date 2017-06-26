@@ -176,6 +176,14 @@ def newton():
             x1 = x0 + dt * (dfxn / dfxxn)
             y1 = y0 + dt * (dfyn / dfyyn)
 
+        # G = Matrix([[dfx], [dfy]])
+
+        # H = Matrix([[dfxx, dfxy], [dfxy, dfyy]])
+
+        # det = dfxx*dfyy -dfxy * dfxy
+        # adj = Matrix([[dfyy, -dfxy], [-dfxy, dfxx]])
+        # invH = (1/det)*adj
+        
         # calculating the derivative with the new x and y
         p = lambdify(x, dfx)
         Fnewx = p(x1)
