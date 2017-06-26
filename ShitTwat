@@ -1,0 +1,246 @@
+import matplotlib.pyplot as plt
+from matplotlib import cm
+import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
+from sympy import *
+
+init_printing(use_latex=True)
+
+from sympy import symbols
+x, y = symbols('x y')
+
+
+tolerance = 0.001        # If the first derivative is lower than this it regards it as 0
+dt = 0.01                # the time step it takes
+solutions = [[1,1]]      # for displaying solutions at the end
+opfold = [1]             # for seeing if we can use a bigger dt
+gloval = []              # for displaying global minimum and maximum at the end
+difference = [1]
+differencey = [1]        # for making the jump
+sign = 0                 # for changing signs
+single_variable = False  # for cases when the function only has one
+
+
+# Information to be displayed at start of program.
+def info():
+    print('This is an algorithm for the continuous newtonian method.\n'
+          'Authors: Andre Gavillon, Gyan de Haan, Emile Menard, and Paul Meyer.\n'
+          '>>>\n>>>')
+    print('The order of operations follows the rules of PEMDAS.')
+    print('Mathematical operators:\n'
+          '---------------\n'
+          '| + -         |\n'
+          '| * /         |\n'
+          '| **          |\n'
+          '| pi E        |\n'
+          '| sin cos tan |\n'
+          '---------------\n'
+          'Function to be evaluated must have one or two inputs, with a scalar output.')
+
+
+def plot(): #plot for before the algorithm works, to see where you want your initial guess
+    newstr = Fu.replace('x', 'X[i,j]')
+    plotfunction = newstr.replace('y', 'Y[i,j]')
+    fig = plt.figure() # Defines the figure
+    ax = Axes3D(fig) # Gets and sets the axis type of the figure
+    # We want a graph of a function z = f(x,y) with x and y between these boundaries
+    xmin = int(input("minumum plot x value"))
+    xmax = int(input("maximum plot x value"))
+    ymin = int(input("minumum plot y value"))
+    ymax = int(input("maximum plot y value"))
+    # We use a grid of nx x ny points
+    nx = 40
+    ny = 40
+    # Compute the spacing of the grid
+    dx = (xmax-xmin)/(nx-1)
+    dy = (ymax-ymin)/(ny-1)
+    # Declare numpy arrays for storage of the coordinates of the grid points
+    X = np.zeros((nx, ny))
+    Y = np.zeros((nx, ny))
+    # Declare a numpy array for storage of the function values
+    Z = np.zeros((nx, ny))
+    # Compute the function values; notice that "range" yields a sequence of integers
+    # starting with the first one, up to, but not including the last one
+    for i in range(0, nx):
+        for j in range(0, ny):
+            X[i, j] = xmin + dx*i
+            Y[i, j] = ymin + dy*j
+            # Notice that sin and exp are part of the imported numpy package
+            Z[i, j] = eval(plotfunction)
+            # Z[i,j] = 2*X[i,j]*Y[i,j]/(X[i,j]*X[i,j]+Y[i,j]*Y[i,j])
+    # For scaling purposes we compute the minimal and maximal values of the function values.
+    # Z is a 2-dimensional array, and the "min" and "max" operator operate along one dimension.
+    # Therefore they have to be called twice
+    zmin = np.min(np.min(Z,0))
+    zmax = np.max(np.max(Z,0))
+    # This plots the surface, with lines drawn at every "rstride" (rowstride) and "cstride" (column stride)
+    # line of the grid.
+    # The parameter alpha represents the opacity of the surface plot
+    ax.plot_surface(X, Y, Z, rstride=1, cstride=1, alpha=0.2)
+    # We also draw contour lines. The first one plots lines of constant "Z"-value, between zmin and zmax,
+    # in total 50 of them, with Z-values equally distributed between zmin and zmax (via the "levels" argument).
+    # They are projected in a plane perpendicular to the z-axis (via zdir='z') intersecting the z-axis at an
+    # offset of zmin
+    # The others are similar.
+    ax.contour(X, Y, Z, zdir='z', offset=zmin, cmap=cm.coolwarm, levels=np.linspace(zmin,zmax,num=20))
+    ax.contour(X, Y, Z, zdir='x', offset=xmin, cmap=cm.coolwarm, levels=np.linspace(xmin,xmax,num=20))
+    ax.contour(X, Y, Z, zdir='y', offset=ymax, cmap=cm.coolwarm, levels=np.linspace(ymin,ymax,num=20))
+    # Finally some axis-dressing:
+    ax.set_xlabel('X')
+    ax.set_xlim(xmin, xmax)
+    ax.set_ylabel('Y')
+    ax.set_ylim(ymin, ymax)
+    ax.set_zlabel('Z')
+    ax.set_zlim(zmin, zmax)
+    # And show the graph
+    plt.show()
+    return# plo# plot for plo
+
+
+def newton():
+    # defining some variable to be used throughout the whole program
+    global function
+    global x0
+    global y0
+    global dt
+    global Fu
+    global sign
+    Fu = input("Enter Function: \n")  # getting a functions as input
+    # plot()  # plotting the function
+    F = simplify(Fu)  # Make the function an expression python can read
+    print("Function will be calculated as:\n%s" % F)  # give back this information
+    x0 = simplify(input("Approximation of X: "))  # asks for an intial guess or starting point of x
+    y0 = simplify(input("Approximation of Y: "))  # asks for an intial guess or starting point of y
+    iterations = int(input("Give number of maximum iterations: "))  # asks for an maximum amount of iterations
+    numberloop = 1  # for the count of iterations
+    print('Running...')
+
+    while True:
+        # first order derivatives:
+        dfx = diff(F, x)
+        dfy = diff(F, y)
+        # second order derivatives
+        dfxx = diff(dfx, x)
+        dfyy = diff(dfy, y)
+
+        if numberloop % 100 == 0:
+            print('Running...')
+
+        # numerically evaluates the functions:
+        k = lambdify(x, dfx)
+        dfxn = k(x0)
+        k = lambdify(y, dfxn)
+        dfxn = k(y0)
+
+        k = lambdify(x, dfxx)
+        dfxxn = k(x0)
+        k = lambdify(y, dfxxn)
+        dfxxn = k(y0)
+
+        k = lambdify(y, dfy)
+        dfyn = k(y0)
+        k = lambdify(x, dfyn)
+        dfyn = k(x0)
+
+        k = lambdify(y, dfyy)
+        dfyyn = k(y0)
+        k = lambdify(x, dfyyn)
+        dfyyn = k(x0)
+
+        # Stops program if denominator is reduced to zero.
+        if dfxxn == 0 or dfyyn == 0:
+            print('----------------------------------\n'
+                  '| Error: Denominator equals zero |\n'
+                  '----------------------------------')
+            exit()
+
+        # The continuous newton method with the changed signs after a jump
+        if abs(sign) == 0:
+            x1 = x0 - dt* (dfxn / dfxxn)
+            y1 = y0 - dt * (dfyn / dfyyn)
+        elif abs(sign) == 1:
+            x1 = x0 + dt * (dfxn / dfxxn)
+            y1 = y0 + dt * (dfyn / dfyyn)
+
+        # calculating the derivative with the new x and y
+        p = lambdify(x, dfx)
+        Fnewx = p(x1)
+        p = lambdify(y, Fnewx)
+        Fnewx = p(y1)
+
+        p = lambdify(y, dfy)
+        Fnewy = p(y1)
+        p = lambdify(x, Fnewy)
+        Fnewy = p(x1)
+
+        # see if we can take larger dt steps in order to make the algorithm faster
+        if (abs(Fnewx) > 1):
+            dt = 0.1
+        elif (abs(Fnewx) - abs(opfold[-1]) <= 0.001 and not abs(Fnewx) < 0.1):
+            dt = 0.1
+        else:
+            dt = 0.01
+        opfold[0] = abs(Fnewx)
+
+        # assign the new x and y for the next loop
+        x0 = x1
+        y0 = y1
+        if abs(Fnewx) < tolerance and abs(Fnewy) < tolerance:  # see if the derivative is close enough to zero to be evaluated as zer
+            global difference
+            global differencey
+            # add the values of x and y to a list to display at the end
+            solutions.append([x1,y1])
+            p = lambdify(x, F)
+            Ssol = p(x1)
+
+            p = lambdify(y, Ssol)
+            Ssol = p(y1)
+            # add the function value with the value of x and y to a list to show the global maximum and minimum at the end
+            gloval.append([Ssol, x1, y1])
+            # jump away from the minimum or maximum
+            x0 = x1 + 1000 * (x1 - difference[0])
+            y0 = y1 + 1000 * (y1 - differencey[0])
+            # makes sure to change signs
+            sign = abs(sign) - 1
+
+
+        # part to skip over the inflection points where the double derivative is zero
+        if x1-difference[0] <= 0:
+            if abs(dfxxn) < 0.5:
+                x0 = x1 + 0.4*(x1- solutions[-1][-2])
+                sign = abs(sign) - 1
+        elif x1-difference[0] > 0:  # neither is this
+            if abs(dfxxn) < 0.5:
+                x0 = x1 - 0.4 * (x1 - solutions[-1][-2])
+                sign = abs(sign) - 1
+        if y1 - differencey[0] <= 0:
+            if abs(dfyyn) < 0.5:
+                y0 = y1 + 0.4 * (y1 - solutions[-1][-1])
+                sign = abs(sign) - 1
+        elif y1 - differencey[0] > 0:  # neither is this
+            if abs(dfyyn) < 0.5:
+                y0 = y1 - 0.4 * (y1 - solutions[-1][-1])
+                sign = abs(sign) - 1
+
+        difference[0] = x1
+        differencey[0] = y1
+        numberloop += 1
+        if numberloop >= iterations:
+            break
+            # print the output
+    del solutions[0]
+    print("\nThe x values found regarding extreme values and the corresponding y values: ", solutions)
+    try:
+        print("The global minimum value with corresponding x and y value: ", max(gloval))
+    except ValueError:
+        print('No global max found, please increase iterations and try again.')
+        exit
+    try:
+        print("The global maximum value with corresponding x and y value: ", min(gloval))
+    except ValueError:
+        print('No global min found, please increase iterations and try again.')
+        exit
+    #  print("\nnumber of iterations: ", numberloop)
+
+info()
+newton()
