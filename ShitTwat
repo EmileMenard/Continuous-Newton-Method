@@ -121,14 +121,16 @@ def newton():
     iterations = int(input("Give number of maximum iterations: "))  # asks for an maximum amount of iterations
     numberloop = 1  # for the count of iterations
     print('Running...')
-
+    
+    # first order derivatives:
+    dfx = diff(F, x)
+    dfy = diff(F, y)
+    # second order derivatives
+    dfxx = diff(dfx, x)
+    dfyy = diff(dfy, y)
+    dfxy = diff(dfx, y)
+        
     while True:
-        # first order derivatives:
-        dfx = diff(F, x)
-        dfy = diff(F, y)
-        # second order derivatives
-        dfxx = diff(dfx, x)
-        dfyy = diff(dfy, y)
 
         if numberloop % 100 == 0:
             print('Running...')
@@ -153,6 +155,11 @@ def newton():
         dfyyn = k(y0)
         k = lambdify(x, dfyyn)
         dfyyn = k(x0)
+        
+        k = lambdify(x, dfxy)
+        dfxyn = k(x0)
+        k = lambdify(y, dfxyn)
+        dfxyn = k(y0)
 
         # Stops program if denominator is reduced to zero.
         if dfxxn == 0 or dfyyn == 0:
